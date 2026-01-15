@@ -14,6 +14,13 @@ public class UserService {
     }
 
     public User registerUser(User user) {
+
+        // Check duplicate email
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+            throw new RuntimeException("USER_ALREADY_EXISTS");
+        }
+
         return userRepository.save(user);
     }
 }
+

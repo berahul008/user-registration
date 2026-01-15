@@ -61,9 +61,16 @@
     });
 
     const data = await response.json();
-
     const debugBox = document.getElementById("debugBox");
     debugBox.style.display = "block";
+
+    if (!data.success) {
+      debugBox.innerHTML = `
+        <strong style="color:red;">${data.message}</strong>
+      `;
+      return;
+    }
+
     debugBox.innerHTML = `
       <strong>Registration Successful</strong><br><br>
       <b>Database:</b> ${data.database}<br>

@@ -1,10 +1,11 @@
 const express = require("express");
-const path = require("path");
 const axios = require("axios");
+const path = require("path");
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
+// Middleware
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
@@ -12,15 +13,13 @@ app.post("/register", async (req, res) => {
   const { username, email } = req.body;
 
   try {
-    // Call Spring Boot backend
     const response = await axios.post(
       "http://localhost:8080/api/users/register",
       { username, email }
     );
 
-    // Debug / info response
     res.json({
-      message: "User registered successfully",
+      success: true,
       database: "MySQL",
       table: "users",
       query: "INSERT INTO users (username, email) VALUES (?, ?);",
@@ -29,10 +28,22 @@ app.post("/register", async (req, res) => {
     });
 
   } catch (error) {
-    res.status(500).json({ error: "Registration failed" });
+
+    if (error.response && error.response.data) {
+      res.json({
+        success: false,
+        message: error.response.data.message
+      });
+    } else {
+      res.json({
+        success: false,
+        message: "Duplicate entry. User already exists in the system."
+      });
+    }
   }
 });
 
 app.listen(PORT, () => {
-  console.log(`Frontend running on http://localhost:${PORT}`);
+  console.log(`Frontend server running on port ${PORT}`);
 });
+

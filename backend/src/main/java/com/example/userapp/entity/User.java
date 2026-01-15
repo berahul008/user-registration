@@ -3,7 +3,12 @@ package com.example.userapp.entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "users")
+@Table(
+    name = "users",
+    uniqueConstraints = {
+        @UniqueConstraint(columnNames = "email")
+    }
+)
 public class User {
 
     @Id
@@ -11,6 +16,8 @@ public class User {
     private Long id;
 
     private String username;
+
+    @Column(nullable = false, unique = true)
     private String email;
 
     // Getters & Setters
@@ -38,3 +45,4 @@ public class User {
         this.email = email;
     }
 }
+
