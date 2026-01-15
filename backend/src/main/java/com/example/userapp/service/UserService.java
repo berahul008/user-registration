@@ -16,22 +16,24 @@ public class UserService {
     }
 
     public User registerUser(User user) {
-
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
             throw new RuntimeException("USER_ALREADY_EXISTS");
         }
-
         return userRepository.save(user);
     }
 
-    // LOGIN
     public User loginUser(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("USER_NOT_FOUND"));
     }
 
-    // GET ALL USERS
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
+
+    // DELETE USER
+    public void deleteUser(Long id) {
+        userRepository.deleteById(id);
+    }
 }
+

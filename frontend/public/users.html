@@ -1,27 +1,199 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Users List</title>
+  <meta charset="UTF-8">
+  <title>Users</title>
+
+  <style>
+    body {
+      font-family: Arial;
+      background: #f4f6f8;
+      margin: 0;
+    }
+
+    header {
+      background: #007bff;
+      color: white;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header h2 {
+      margin: 0;
+    }
+
+    .add-btn {
+      font-size: 24px;
+      background: white;
+      color: #007bff;
+      border-radius: 50%;
+      border: none;
+      width: 36px;
+      height: 36px;
+      cursor: pointer;
+    }
+
+    ul {
+      list-style: none;
+      padding: 20px;
+    }
+
+    li {
+      background: white;
+      padding: 10px 15px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-radius: 4px;
+      box-shadow: 0 0 4px rgba(0,0,0,0.1);
+    }
+
+    .delete-btn {
+      background: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 26px;
+      height: 26px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    /* MODAL */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+    }
+
+    .modal-content {
+      background: white;
+      width: 320px;
+      margin: 120px auto;
+      padding: 20px;
+      border-radius: 5px;
+    }
+
+    input, button {
+      width: 100%;
+      margin: 8px 0;
+      padding: 8px;
+    }
+
+    .cancel-btn {
+      background: #6c757d;
+      color: white;
+      border: none;
+    }
+
+    .msg {
+      font-size: 14px;
+      margin-top: 5px;
+    }
+  </style>
 </head>
+
 <body>
 
-<h2>Registered Users</h2>
+<header>
+  <h2>Registered Users</h2>
+  <button class="add-btn" onclick="openModal()">+</button>
+</header>
+
 <ul id="userList"></ul>
 
+<!-- ADD USER MODAL -->
+<div class="modal" id="userModal">
+  <div class="modal-content">
+    <h3>Add User</h3>
+
+    <input type="text" id="username" placeholder="Username">
+    <input type="email" id="email" placeholder="Email">
+
+    <button onclick="addUser()">Add User</button>
+    <button class="cancel-btn" onclick="closeModal()">Cancel</button>
+
+    <div class="msg" id="msg"></div>
+  </div>
+</div>
+
 <script>
-async function loadUsers() {
-  const res = await fetch("/users");
-  const users = await res.json();
+  // LOAD USERS
+  async function loadUsers() {
+    const res = await fetch("/users");
+    const users = await res.json();
 
-  const ul = document.getElementById("userList");
-  users.forEach(u => {
-    const li = document.createElement("li");
-    li.innerText = `${u.username} - ${u.email}`;
-    ul.appendChild(li);
-  });
-}
+    const ul = document.getElementById("userList");
+    ul.innerHTML = "";
 
-loadUsers();
+    users.forEach(u => {
+      const li = document.createElement("li");
+
+      li.innerHTML = `
+        <span>${u.username} - ${u.email}</span>
+        <button class="delete-btn" onclick="deleteUser(${u.id})">−</button>
+      `;
+
+      ul.appendChild(li);
+    });
+  }
+
+  // OPEN MODAL
+  function openModal() {
+    document.getElementById("userModal").style.display = "block";
+    document.getElementById("msg").innerText = "";
+  }
+
+  // CLOSE MODAL
+  function closeModal() {
+    document.getElementById("userModal").style.display = "none";
+  }
+
+  // ADD USER
+  async function addUser() {
+    const username = document.getElementById("username").value;
+    const email = document.getElementById("email").value;
+    const msg = document.getElementById("msg");
+
+    const res = await fetch("/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, email })
+    });
+
+    const data = await res.json();
+
+    if (!data.success) {
+      msg.style.color = "red";
+      msg.innerText = data.message;
+      return;
+    }
+
+    msg.style.color = "green";
+    msg.innerText = "User added successfully";
+
+    document.getElementById("username").value = "";
+    document.getElementById("email").value = "";
+
+    loadUsers();
+    setTimeout(closeModal, 800);
+  }
+
+  // DELETE USER
+  async function deleteUser(id) {
+    if (!confirm("Are you sure you want to delete this user?")) return;
+
+    await fetch(`/users/${id}`, { method: "DELETE" });
+    loadUsers();
+  }
+
+  loadUsers();
 </script>
 
 </body>
