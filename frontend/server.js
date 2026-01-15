@@ -9,6 +9,7 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
+// REGISTER
 app.post("/register", async (req, res) => {
   const { username, email } = req.body;
 
@@ -28,19 +29,32 @@ app.post("/register", async (req, res) => {
     });
 
   } catch (error) {
-
-    if (error.response && error.response.data) {
-      res.json({
-        success: false,
-        message: error.response.data.message
-      });
-    } else {
-      res.json({
-        success: false,
-        message: "Duplicate entry. User already exists in the system."
-      });
-    }
+    res.json({
+      success: false,
+      message: error.response?.data?.message || "Registration failed"
+    });
   }
+});
+
+// LOGIN
+app.post("/login", async (req, res) => {
+  try {
+    await axios.post("http://localhost:8080/api/users/login", req.body);
+    res.json({ success: true });
+  } catch (error) {
+    res.json({
+      success: false,
+      message: error.response?.data?.message || "Login failed"
+    });
+  }
+});
+
+// GET USERS
+app.get("/users", async (req, res) => {
+  const response = await axios.get(
+    "http://localhost:8080/api/users/all"
+  );
+  res.json(response.data);
 });
 
 app.listen(PORT, () => {

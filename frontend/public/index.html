@@ -26,6 +26,9 @@
       border: none;
       cursor: pointer;
     }
+    .login-btn {
+      background: #28a745;
+    }
     .debug-box {
       margin-top: 20px;
       padding: 10px;
@@ -41,10 +44,11 @@
 <div class="container">
   <h2>User Registration</h2>
 
-  <!-- NO form submit -->
   <input type="text" id="username" placeholder="Enter Username" />
   <input type="email" id="email" placeholder="Enter Email" />
+
   <button onclick="registerUser()">Register</button>
+  <button class="login-btn" onclick="goToLogin()">Already Registered? Login</button>
 
   <div class="debug-box" id="debugBox"></div>
 </div>
@@ -65,9 +69,7 @@
     debugBox.style.display = "block";
 
     if (!data.success) {
-      debugBox.innerHTML = `
-        <strong style="color:red;">${data.message}</strong>
-      `;
+      debugBox.innerHTML = `<strong style="color:red;">${data.message}</strong>`;
       return;
     }
 
@@ -77,12 +79,16 @@
       <b>Table:</b> ${data.table}<br>
       <b>SQL Query:</b><br>
       <code>${data.query}</code><br><br>
-      <b>Inserted Data:</b><br>
       Username: ${data.username}<br>
       Email: ${data.email}
     `;
+  }
+
+  function goToLogin() {
+    window.location.href = "login.html";
   }
 </script>
 
 </body>
 </html>
+
